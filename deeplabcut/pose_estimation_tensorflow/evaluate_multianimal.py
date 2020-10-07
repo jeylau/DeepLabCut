@@ -372,7 +372,7 @@ def evaluate_multianimal_full(
                         df_joint.to_csv(write_path)
 
                         # For OKS/PCK, compute the standard deviation error across all frames
-                        sd = df_dist.groupby("bodyparts").mean().std(axis=1)
+                        sd = df_dist.groupby("bodyparts", axis=1).mean().std(axis=0)
                         sd["distnorm"] = np.sqrt(np.nanmax(distnorm))
                         sd.to_csv(write_path.replace("dist.csv", "sd.csv"))
 
