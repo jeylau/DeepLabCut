@@ -52,7 +52,6 @@ def evaluate_multianimal_full(
     Shuffles=[1],
     trainingsetindex=0,
     plotting=None,
-    show_errors=True,
     comparisonbodyparts="all",
     gputouse=None,
     modelprefix="",
@@ -261,7 +260,7 @@ def evaluate_multianimal_full(
                             frame = img_as_ubyte(skimage.color.gray2rgb(image))
 
                             GT = Data.iloc[imageindex]
-                            df = GT.unstack("coords").reindex(joints, level='bodyparts')
+                            df = GT.unstack("coords").reindex(joints, level="bodyparts")
 
                             # Evaluate PAF edge lengths to calibrate `distnorm`
                             temp = GT.unstack("bodyparts")[joints]
@@ -353,42 +352,29 @@ def evaluate_multianimal_full(
                         # Compute all distance statistics
                         df_dist = pd.DataFrame(dist, columns=df.index)
                         df_conf = pd.DataFrame(conf, columns=df.index)
-                        df_joint = pd.concat([df_dist, df_conf], keys=["rmse", "conf"],
-                                             names=['metrics'], axis=1)
+                        df_joint = pd.concat(
+                            [df_dist, df_conf],
+                            keys=["rmse", "conf"],
+                            names=["metrics"],
+                            axis=1,
+                        )
                         df_joint = df_joint.reorder_levels(
                             list(np.roll(df_joint.columns.names, -1)), axis=1
                         )
-                        df_joint.sort_index(axis=1, level=['individuals', 'bodyparts'],
-                                            ascending=[True, True], inplace=True)
+                        df_joint.sort_index(
+                            axis=1,
+                            level=["individuals", "bodyparts"],
+                            ascending=[True, True],
+                            inplace=True,
+                        )
 
                         write_path = os.path.join(evaluationfolder, "dist.csv")
                         df_joint.to_csv(write_path)
-
-                        stats_per_ind = _compute_stats(df_dist.groupby("individuals"))
-                        stats_per_ind.to_csv(
-                            write_path.replace("dist.csv", "dist_stats_ind.csv")
-                        )
-                        stats_per_bpt = _compute_stats(df_dist.groupby("bodyparts"))
-                        stats_per_bpt.to_csv(
-                            write_path.replace("dist.csv", "dist_stats_bpt.csv")
-                        )
 
                         # For OKS/PCK, compute the standard deviation error across all frames
                         sd = df_dist.groupby("bodyparts").mean().std(axis=1)
                         sd["distnorm"] = np.sqrt(np.nanmax(distnorm))
                         sd.to_csv(write_path.replace("dist.csv", "sd.csv"))
-
-                        if show_errors:
-                            print("##########################################&1")
-                            print(
-                                "Euclidean distance statistics per individual (in pixels)"
-                            )
-                            print(stats_per_ind.mean(axis=1).unstack().to_string())
-                            print("##########################################")
-                            print(
-                                "Euclidean distance statistics per bodypart (in pixels)"
-                            )
-                            print(stats_per_bpt.mean(axis=1).unstack().to_string())
 
                         PredicteData["metadata"] = {
                             "nms radius": dlc_cfg.nmsradius,
