@@ -335,12 +335,13 @@ def evaluate_multianimal_full(
                                     if withid:
                                         id_ = pred["identity"][n_joint]
                                         id_pred[sl[1]] = np.argmax(id_[cols], axis=1)
-                            id_gt = np.full_like(id_pred, np.nan)
-                            for n, id_ in enumerate(groundtruthidentity):
-                                if id_.size:
-                                    id_gt[n] = all_ids.index(id_)
-                            ids[imageindex, :, 0] = id_gt
-                            ids[imageindex, :, 1] = id_pred
+                            if withid:
+                                id_gt = np.full_like(id_pred, np.nan)
+                                for n, id_ in enumerate(groundtruthidentity):
+                                    if id_.size:
+                                        id_gt[n] = all_ids.index(id_)
+                                ids[imageindex, :, 0] = id_gt
+                                ids[imageindex, :, 1] = id_pred
 
                             if plotting:
                                 fig = visualization.make_multianimal_labeled_image(
