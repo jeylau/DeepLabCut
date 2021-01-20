@@ -14,6 +14,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pickle
 import skimage.color
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
@@ -398,6 +399,9 @@ def evaluate_multianimal_full(
                             df_id["train"] = True
                             df_id.loc[testIndices, "train"] = False
                             df_id.to_csv(os.path.join(evaluationfolder, "id.csv"))
+
+                            with open(os.path.join(evaluationfolder, "id.pickle"), 'wb') as file:
+                                pickle.dump(ids, file, protocol=pickle.HIGHEST_PROTOCOL)
 
                         write_path = os.path.join(evaluationfolder, "dist.csv")
                         df_joint.to_csv(write_path)
